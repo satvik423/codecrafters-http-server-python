@@ -9,12 +9,33 @@ def main():
     # Uncomment this to pass the first stage
     #
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
-    client_socket, address = server_socket.accept() # wait for client
-    print(f"Connection from {address} has been established.")
-    
-    response = "HTTP/1.1 200 OK\r\n\r\n"
-    client_socket.sendall(response.encode("utf-8"))
-    client_socket.close()
+    while True:
+        client_socket, address = server_socket.accept() # wait for client
+        print(f"Connection from {address} has been established.")
+        
+        # Receive the request
+        request = client_socket.recv(1024).decode("utf-8")
+        print(f"Received request:\n{request}")
+        
+        # Extract the path from the request line
+        try:
+            request_line = request.split("\r\n")[0]
+            method, path, http_version = request_line.split(" ")
+            print(f"Requested path: {path}")
+
+            # Define valid paths
+            valid_paths = ["/", "/index.html"]
+
+            if path in valid_paths:
+                response = "HTTP/1.1 200 OK\r\n\r\n"
+            else:
+                response = "HTTP/1.1 404 Not Found\r\n\r\n"
+
+        except ValueError:
+            response = "HTTP/1.1 400 Bad Request\r\n\r\n"
+
+        client_socket.sendall(response.encode("utf-8"))
+        client_socket.close()
 
 if __name__ == "__main__":
     main()
