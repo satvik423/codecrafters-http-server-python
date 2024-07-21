@@ -23,13 +23,27 @@ def main():
             method, path, http_version = request_line.split(" ")
             print(f"Requested path: {path}")
 
-            # Define valid paths
-            valid_paths = ["/", "/index.html"]
-
-            if path in valid_paths:
-                response = "HTTP/1.1 200 OK\r\n\r\n"
+            # Handle the /echo/{str} endpoint
+            if path.startswith("/echo/"):
+                echo_str = path[len("/echo/"):]
+                response_body = echo_str
+                content_type = "text/plain"
+                content_length = len(response_body)
+                response = (
+                    f"HTTP/1.1 200 OK\r\n"
+                    f"Content-Type: {content_type}\r\n"
+                    f"Content-Length: {content_length}\r\n"
+                    f"\r\n"
+                    f"{response_body}"
+                )
             else:
-                response = "HTTP/1.1 404 Not Found\r\n\r\n"
+                # Define valid paths
+                valid_paths = ["/", "/index.html"]
+
+                if path in valid_paths:
+                    response = "HTTP/1.1 200 OK\r\n\r\n"
+                else:
+                    response = "HTTP/1.1 404 Not Found\r\n\r\n"
 
         except ValueError:
             response = "HTTP/1.1 400 Bad Request\r\n\r\n"
