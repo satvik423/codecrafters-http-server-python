@@ -36,6 +36,29 @@ def main():
                     f"\r\n"
                     f"{response_body}"
                 )
+            # Handle the /user-agent endpoint
+            elif path == "/user-agent":
+                # Extract User-Agent header
+                headers = request.split("\r\n")[1:]
+                user_agent = None
+                for header in headers:
+                    if header.lower().startswith("user-agent:"):
+                        user_agent = header.split(": ", 1)[1]
+                        break
+
+                if user_agent:
+                    response_body = user_agent
+                    content_type = "text/plain"
+                    content_length = len(response_body)
+                    response = (
+                        f"HTTP/1.1 200 OK\r\n"
+                        f"Content-Type: {content_type}\r\n"
+                        f"Content-Length: {content_length}\r\n"
+                        f"\r\n"
+                        f"{response_body}"
+                    )
+                else:
+                    response = "HTTP/1.1 400 Bad Request\r\n\r\n"
             else:
                 # Define valid paths
                 valid_paths = ["/", "/index.html"]
